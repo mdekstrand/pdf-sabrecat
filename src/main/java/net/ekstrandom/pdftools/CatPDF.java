@@ -1,9 +1,6 @@
 package net.ekstrandom.pdftools;
 
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfDocumentInfo;
-import com.itextpdf.kernel.pdf.PdfReader;
-import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.utils.PdfMerger;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -15,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Concatenate PDF files.
@@ -52,8 +50,16 @@ public class CatPDF {
 
     public void run() {
         logger.info("preparing to write to {}", getOutputFile());
+        WriterProperties wprops = new WriterProperties();
+        Optional<String> pw = getEncryptPassword();
+        if (pw.isPresent()) {
+            logger.info("encrypting output PDF");
+            byte[] pwb = pw.get().getBytes();
+            wprops.setStandardEncryption(pwb, pwb, 0,
+                                         EncryptionConstants.ENCRYPTION_AES_128);
+        }
         try (OutputStream out = new FileOutputStream(getOutputFile());
-             PdfWriter writer = new PdfWriter(out);
+             PdfWriter writer = new PdfWriter(out, wprops);
              PdfDocument result = new PdfDocument(writer)) {
 
             PdfMerger merger = new PdfMerger(result);
