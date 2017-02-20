@@ -71,6 +71,7 @@
           </execution>
         </executions>
         <configuration>
+          <assembleDirectory>${project.build.directory}/pdftools</assembleDirectory>
           <programs>
             <program>
               <mainClass>net.ekstrandom.pdftools.CatPDF</mainClass>
